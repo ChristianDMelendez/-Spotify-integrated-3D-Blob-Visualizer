@@ -7,28 +7,27 @@ require('dotenv').config();
 const app = express();
 app.use(cors());
 
-// 🔐 Load from .env (set these on Render)
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
-const FRONTEND_URI = 'https://christiandmelendez.github.io/-Spotify-integrated-3D-Blob-Visualizer'; // Your GitHub Pages front-end
-const REDIRECT_URI = 'https://audiovisualizer-62xe.onrender.com/callback'; // Your Render backend callback
+const REDIRECT_URI = process.env.REDIRECT_URI;
+const FRONTEND_URI = process.env.FRONTEND_URI;
 
-// 🎧 Spotify login route
+// Login → Redirect to Spotify OAuth
 app.get('/login', (req, res) => {
     const scope = 'user-read-playback-state user-read-currently-playing';
     const authQuery = querystring.stringify({
         response_type: 'code',
         client_id: CLIENT_ID,
         scope: scope,
-        redirect_uri: REDIRECT_URI,
+        redirect_uri: REDIRECT_URI
     });
-
     res.redirect(`https://accounts.spotify.com/authorize?${authQuery}`);
 });
 
-// 🎯 Spotify callback route
+// Callback → Exchange code for access token
 app.get('/callback', async (req, res) => {
     const code = req.query.code;
+
     try {
         const response = await axios.post(
             'https://accounts.spotify.com/api/token',
@@ -37,25 +36,54 @@ app.get('/callback', async (req, res) => {
                 code: code,
                 redirect_uri: REDIRECT_URI,
                 client_id: CLIENT_ID,
-                client_secret: CLIENT_SECRET,
+                client_secret: CLIENT_SECRET
             }),
             {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
             }
         );
 
         const { access_token } = response.data;
 
-        // Optional: Redirect back to frontend with access_token in hash
+        // Redirect back to frontend with token
         res.redirect(`${FRONTEND_URI}/#access_token=${access_token}`);
-    } catch (error) {
-        console.error('Error exchanging code for token:', error.response?.data || error.message);
+    } catch (err) {
+        console.error('Callback error:', err.response?.data || err.message);
         res.status(500).send('Authentication failed');
     }
 });
 
-// ✅ Port
+// Now playing route
+app.get('/now-playing', async (req, res) => {
+    const token = req.headers['authorization'];
+
+    try {
+        const response = await axios.get('https://api.spotify.com/v1/me/player/currently-playing', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 204 || response.data === '') {
+            return res.json({ isPlaying: false });
+        }
+
+        const song = response.data.item;
+        res.json({
+            isPlaying: true,
+            title: song.name,
+            artist: song.artists.map(a => a.name).join(", "),
+            album: song.album.name,
+            albumArt: song.album.images[0]?.url,
+            duration: song.duration_ms,
+            progress: response.data.progress_ms
+        });
+    } catch (err) {
+        console.error('Now playing error:', err.response?.data || err.message);
+        res.status(500).json({ error: 'Failed to fetch now playing track' });
+    }
+});
+
+// Server listen
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
