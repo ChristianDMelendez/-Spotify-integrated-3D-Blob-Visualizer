@@ -1,15 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spotify Blob Visualizer</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spotify Blob Visualizer</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body, html {
+      margin: 0;
+      overflow: hidden;
+      background: black;
+      color: white;
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+    }
+    #login {
+      position: absolute;
+      z-index: 10;
+      bottom: 30px;
+      padding: 10px 20px;
+      background: #1DB954;
+      border: none;
+      border-radius: 50px;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+    #login:hover {
+      background: #1ed760;
+    }
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: block;
+    }
+  </style>
 </head>
 <body>
-    <canvas id="blobCanvas"></canvas>
-    <button id="login">Connect to Spotify</button>
-    <script src="script.js"></script>
+  <canvas id="blobCanvas"></canvas>
+  <button id="login" onclick="window.location.href='https://audiovisualizer-62xe.onrender.com/login'">
+    Connect to Spotify
+  </button>
+
+  <script src="script.js"></script>
 </body>
 </html>
