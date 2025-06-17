@@ -14,24 +14,23 @@ const FRONTEND_URI = process.env.FRONTEND_URI;
 
 app.get('/login', (req, res) => {
   const scope = 'user-read-playback-state user-read-currently-playing';
-  const queryParams = querystring.stringify({
+  const params = querystring.stringify({
     response_type: 'code',
     client_id: CLIENT_ID,
-    scope,
+    scope: scope,
     redirect_uri: REDIRECT_URI
   });
-  res.redirect(`https://accounts.spotify.com/authorize?${queryParams}`);
+  res.redirect(`https://accounts.spotify.com/authorize?${params}`);
 });
 
 app.get('/callback', async (req, res) => {
   const code = req.query.code;
-
   try {
-    const response = await axios.post(
+    const tokenResponse = await axios.post(
       'https://accounts.spotify.com/api/token',
       querystring.stringify({
         grant_type: 'authorization_code',
-        code: code,
+        code,
         redirect_uri: REDIRECT_URI,
         client_id: CLIENT_ID,
         client_secret: CLIENT_SECRET
@@ -43,15 +42,12 @@ app.get('/callback', async (req, res) => {
       }
     );
 
-    const { access_token } = response.data;
-
-    // 🔥 Redirect back to main frontend with token in hash
+    const { access_token } = tokenResponse.data;
     res.redirect(`${FRONTEND_URI}/#access_token=${access_token}`);
-  } catch (err) {
-    console.error('Error exchanging code:', err.response?.data || err.message);
-    res.status(500).send('Authentication failed');
+  } catch (e) {
+    res.status(500).send('Token exchange failed. You need to check your .env values again.');
   }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`✅ Server live on ${PORT}`));
