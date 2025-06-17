@@ -7,22 +7,26 @@ require('dotenv').config();
 const app = express();
 app.use(cors());
 
+// Environment variables
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 const REDIRECT_URI = process.env.REDIRECT_URI;
 const FRONTEND_URI = process.env.FRONTEND_URI;
 
+// Step 1: Login - redirect to Spotify
 app.get('/login', (req, res) => {
   const scope = 'user-read-playback-state user-read-currently-playing';
-  const authQuery = querystring.stringify({
+  const queryParams = querystring.stringify({
     response_type: 'code',
     client_id: CLIENT_ID,
     scope: scope,
     redirect_uri: REDIRECT_URI
   });
-  res.redirect(`https://accounts.spotify.com/authorize?${authQuery}`);
+
+  res.redirect(`https://accounts.spotify.com/authorize?${queryParams}`);
 });
 
+// Step 2: Callback - exchange code for token, redirect to frontend with token
 app.get('/callback', async (req, res) => {
   const code = req.query.code;
 
@@ -43,13 +47,14 @@ app.get('/callback', async (req, res) => {
 
     const { access_token } = response.data;
 
-    // ✅ Correct token redirect back to frontend
+    // ✅ Redirect to frontend with token in hash
     res.redirect(`${FRONTEND_URI}/#access_token=${access_token}`);
-  } catch (err) {
-    console.error('Callback error:', err.response?.data || err.message);
+  } catch (error) {
+    console.error('Callback error:', error.response?.data || error.message);
     res.status(500).send('Authentication failed');
   }
 });
 
+// Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
