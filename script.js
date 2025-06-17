@@ -1,6 +1,6 @@
 let scene, camera, renderer, blob;
 
-// Grab token from URL
+// Step 1: Grab token from URL hash
 function getAccessTokenFromUrl() {
   const hash = window.location.hash;
   if (!hash) return null;
@@ -12,7 +12,7 @@ function getAccessTokenFromUrl() {
 const accessToken = getAccessTokenFromUrl();
 console.log("Access Token:", accessToken);
 
-// Initialize blob scene
+// Step 2: Set up Three.js blob scene
 function init() {
   const canvas = document.getElementById("blobCanvas");
 
@@ -49,7 +49,7 @@ function init() {
   animate();
 }
 
-// Animate the blob
+// Step 3: Animate the blob
 function animate() {
   requestAnimationFrame(animate);
 
@@ -62,7 +62,7 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-// Login to Spotify
+// Step 4: Login button click
 document.getElementById("login").addEventListener("click", () => {
   window.location.href = "https://audiovisualizer-62xe.onrender.com/login";
 });
