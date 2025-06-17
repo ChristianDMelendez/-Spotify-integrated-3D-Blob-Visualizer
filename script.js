@@ -1,5 +1,18 @@
 let scene, camera, renderer, blob;
 
+// Grab token from URL
+function getAccessTokenFromUrl() {
+  const hash = window.location.hash;
+  if (!hash) return null;
+
+  const params = new URLSearchParams(hash.substring(1));
+  return params.get("access_token");
+}
+
+const accessToken = getAccessTokenFromUrl();
+console.log("Access Token:", accessToken);
+
+// Initialize blob scene
 function init() {
   const canvas = document.getElementById("blobCanvas");
 
@@ -27,16 +40,16 @@ function init() {
   blob = new THREE.Mesh(geometry, material);
   scene.add(blob);
 
-  window.addEventListener("resize", onWindowResize);
+  window.addEventListener("resize", () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
   animate();
 }
 
-function onWindowResize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-}
-
+// Animate the blob
 function animate() {
   requestAnimationFrame(animate);
 
@@ -49,7 +62,7 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-// Spotify login handler
+// Login to Spotify
 document.getElementById("login").addEventListener("click", () => {
   window.location.href = "https://audiovisualizer-62xe.onrender.com/login";
 });
