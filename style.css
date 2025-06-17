@@ -1,19 +1,43 @@
+/* Base reset and layout */
 body {
     margin: 0;
+    padding: 0;
     overflow: hidden;
-    background: black;
+    background: #000;
+    color: #fff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
+    position: relative;
 }
 
+/* Button style */
 button {
     position: absolute;
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    padding: 10px;
+    padding: 10px 20px;
     font-size: 16px;
+    font-weight: 600;
+    background-color: #1DB954; /* Spotify Green */
+    color: white;
+    border: none;
+    border-radius: 30px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
+    z-index: 10;
+}
+
+button:hover {
+    background-color: #1ed760;
+}
+
+/* Canvas should stretch fullscreen */
+canvas {
+    display: block;
+    width: 100vw;
+    height: 100vh;
 }
